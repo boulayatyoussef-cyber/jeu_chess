@@ -1,0 +1,57 @@
+import pygame
+from pieces import *
+from utils import PIECES
+WHITE = (255,255,255)
+BLACK = (0,0,0)
+HIGHLIGHT = (0,255,0)
+ROWS, COLS = 8,8
+
+class Board:
+    def __init__(self):
+        self.board = [[None]*COLS for _ in range(ROWS)]
+        self.setup_board()
+        self.selected_piece = None
+        self.turn_done = False
+        self.game_over = False
+        self.square_size = 75
+
+    def setup_board(self):
+        placement = ["rook","knight","bishop","queen","king","bishop","knight","rook"]
+        for col,p in enumerate(placement):
+            self.board[0][col] = Piece("b",0,col,f"b_{p}")
+            self.board[7][col] = Piece("w",7,col,f"w_{p}")
+        for i in range(8):
+            self.board[1][i] = Pawn("b",1,i)
+            self.board[6][i] = Pawn("w",6,i)
+
+    def draw(self, win):
+        for r in range(ROWS):
+            for c in range(COLS):
+                color = WHITE if (r+c)%2==0 else BLACK
+                pygame.draw.rect(win,color,(c*self.square_size,r*self.square_size,self.square_size,self.square_size))
+                piece = self.board[r][c]
+                if piece:
+                    emoji = PIECES[piece.name]
+                    text = pygame.font.SysFont("seguisym",self.square_size).render(emoji,True,(0,0,0))
+                    win.blit(text,(c*self.square_size+10,r*self.square_size+5))
+        if self.selected_piece:
+            r,c = self.selected_piece.row,self.selected_piece.col
+            pygame.draw.rect(win,HIGHLIGHT,(c*self.square_size,r*self.square_size,self.square_size,self.square_size),3)
+
+    def select(self,row,col):
+        piece = self.board[row][col]
+        if piece and piece.color=="w":
+            self.selected_piece = piece
+        elif self.selected_piece:
+            moved = self.move_piece(self.selected_piece,row,col)
+            if moved:
+                self.selected_piece = None
+                self.turn_done = True
+
+    def move_piece(self,piece,r,c):
+        if piece.can_move(self.board,r,c):
+            self.board[piece.row][piece.col]=None
+            piece.row,piece.col = r,c
+            self.board[r][c]=piece
+            return True
+        return False

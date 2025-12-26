@@ -1,0 +1,61 @@
+import copy
+from utils import PIECES
+
+values={"pawn":1,"knight":3,"bishop":3,"rook":5,"queen":9,"king":1000}
+
+def evaluate_board(board):
+    score=0
+    for row in board.board:
+        for piece in row:
+            if piece:
+                val=values.get(piece.name.split("_")[1],0)
+                score+=val if piece.color=="b" else -val
+    return score
+
+def get_all_moves(board,color):
+    moves=[]
+    for row in board.board:
+        for piece in row:
+            if piece and piece.color==color:
+                for r in range(8):
+                    for c in range(8):
+                        if piece.can_move(board.board,r,c):
+                            moves.append((piece,(r,c)))
+    return moves
+
+def minimax(board,depth,alpha,beta,maximizing):
+    if depth==0:
+        return evaluate_board(board), None
+    color="b" if maximizing else "w"
+    moves=get_all_moves(board,color)
+    best_move=None
+    if maximizing:
+        max_eval=-float('inf')
+        for piece,pos in moves:
+            temp=copy.deepcopy(board)
+            temp.move_piece(temp.board[piece.row][piece.col],pos)
+            eval,_=minimax(temp,depth-1,alpha,beta,False)
+            if eval>max_eval:
+                max_eval=eval
+                best_move=(piece,pos)
+            alpha=max(alpha,eval)
+            if beta<=alpha:
+                break
+        return max_eval,best_move
+    else:
+        min_eval=float('inf')
+        for piece,pos in moves:
+            temp=copy.deepcopy(board)
+            temp.move_piece(temp.board[piece.row][piece.col],pos)
+            eval,_=minimax(temp,depth-1,alpha,beta,True)
+            if eval<min_eval:
+                min_eval=eval
+                best_move=(piece,pos)
+            beta=min(beta,eval)
+            if beta<=alpha:
+                break
+        return min_eval,best_move
+
+def get_best_move(board,depth=3):
+    _, move = minimax(board,depth,-float('inf'),float('inf'),True)
+    return move

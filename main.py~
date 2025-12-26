@@ -1,0 +1,45 @@
+import pygame
+import sys
+from board import Board
+from ai import get_best_move
+
+WIDTH, HEIGHT = 600, 600
+FPS = 60
+
+pygame.init()
+WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Échecs Emoji")
+
+def main():
+    clock = pygame.time.Clock()
+    board = Board()
+    player_turn = "w"
+
+    run = True
+    while run:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN and player_turn == "w":
+                x, y = pygame.mouse.get_pos()
+                row, col = y // board.square_size, x // board.square_size
+                board.select(row, col)
+                if board.turn_done:
+                    player_turn = "b"
+
+        # IA move
+        if player_turn == "b" and not board.game_over:
+            move = get_best_move(board, depth=3)
+            if move:
+                board.move_piece(move[0], move[1])
+            player_turn = "w"
+
+        board.draw(WIN)
+        pygame.display.update()
+
+    pygame.quit()
+    sys.exit()
+
+if __name__ == "__main__":
+    main()

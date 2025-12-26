@@ -1,0 +1,20 @@
+class Piece:
+    def __init__(self,color,row,col,name):
+        self.color=color
+        self.row=row
+        self.col=col
+        self.name=name
+
+    def can_move(self,board,r,c):
+        target=board[r][c]
+        return target is None or target.color != self.color
+
+class Pawn(Piece):
+    def can_move(self,board,r,c):
+        dir = -1 if self.color=="w" else 1
+        if c==self.col and board[r][c] is None:
+            if r==self.row+dir:
+                return True
+        if abs(c-self.col)==1 and r==self.row+dir and board[r][c] and board[r][c].color!=self.color:
+            return True
+        return False

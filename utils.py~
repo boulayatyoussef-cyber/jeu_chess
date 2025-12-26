@@ -1,0 +1,5 @@
+# Emojis des pièces
+PIECES = {
+    "w_king":"♔","w_queen":"♕","w_rook":"♖","w_bishop":"♗","w_knight":"♘","w_pawn":"♙",
+    "b_king":"♚","b_queen":"♛","b_rook":"♜","b_bishop":"♝","b_knight":"♞","b_pawn":"♟"
+}
